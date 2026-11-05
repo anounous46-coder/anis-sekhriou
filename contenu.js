@@ -25,6 +25,7 @@ window.CONTENU = {
     { titre: "Amine Studio", client: "Motion design, agence", role: "Vertical 9:16", style: "motion", format: "vertical", video: "videos/amine.mp4", apercu: "apercus/amine.mp4" },
     { titre: "T Agency", client: "Publicité, abonnements numériques", role: "Vertical 9:16", style: "motion", format: "vertical", video: "videos/t-agency.mp4", apercu: "apercus/t-agency.mp4" },
     { titre: "KZ Renova", client: "Publicité, rénovation", role: "Vertical 9:16", style: "motion", format: "vertical", video: "videos/renova.mp4", apercu: "apercus/renova.mp4" },
+    { titre: "Amine Studio B-roll", client: "Motion design et B-roll, agence", role: "Vertical 9:16", style: "motion", format: "vertical", video: "videos/amine-broll.mp4", apercu: "apercus/amine-broll.mp4" },
     { titre: "IBM", client: "Présentation, aménagement de salon", role: "Vertical 9:16", style: "sous-titres", format: "vertical", video: "videos/ibm.mp4", apercu: "apercus/ibm.mp4" },
     { titre: "Fassi7", client: "Publicité, cours d'allemand", role: "Vertical 9:16", style: "sous-titres", format: "vertical", video: "videos/fassi.mp4", apercu: "apercus/fassi.mp4" },
   ],

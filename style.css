@@ -1058,6 +1058,7 @@ main > .bande { position: relative; z-index: 1; }
   .mosaique { display: flex; flex-direction: column; }
   .mur-carte { height: 62vh; }
   .tuile { min-height: 20rem; }
+  .carte-titre,
   .carte-client { white-space: normal; }
 }
 
