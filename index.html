@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portfolio de montage vidéo</title>
+  <meta name="description" content="Portfolio de montage vidéo : showreel, projets, services et contact.">
+  <meta name="theme-color" content="#0b0b0a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0b0a'/%3E%3Cpath d='M11 8l14 8-14 8z' fill='%23ff5b1f'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <div class="intro" id="intro" aria-hidden="true">
+    <span class="intro-nom" id="intro-nom"></span>
+    <span class="intro-tc" id="intro-tc">00:00:00:00</span>
+  </div>
+
+  <header class="tete-site" id="tete-site">
+    <a class="tete-nom" id="tete-nom" href="#reel"></a>
+    <nav class="pilule" id="pilule" aria-label="Navigation principale">
+      <span class="pilule-indice" id="pilule-indice" aria-hidden="true"></span>
+      <a href="#projets">Projets</a>
+      <a class="lien-large" href="#services">Services</a>
+      <a class="lien-large" href="#methode">Méthode</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="heros" id="reel" aria-labelledby="nom">
+      <div class="heros-video" id="heros-video"></div>
+      <div class="heros-voile" id="heros-voile"></div>
+      <div class="heros-contenu" id="heros-contenu">
+        <div class="heros-haut">
+          <p class="mono" id="metier"></p>
+          <p class="heros-accroche" id="accroche"></p>
+        </div>
+        <div class="heros-bas">
+          <h1 id="nom"><span class="mot"><span id="nom-texte" style="--i:0"></span></span></h1>
+          <div class="heros-actions">
+            <button class="bouton-lire" id="lire-reel" type="button" data-aimant>
+              <span class="bouton-rond" aria-hidden="true"></span>
+              <span id="lire-reel-texte"></span>
+            </button>
+            <span class="mono heros-defiler" aria-hidden="true">Défiler <i></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="clair feuille manifeste-zone" aria-label="Présentation">
+      <p class="manifeste" id="manifeste"></p>
+    </section>
+
+    <section class="galerie" id="projets" aria-labelledby="titre-projets">
+      <div class="galerie-colle" id="galerie-colle">
+        <div class="galerie-entete" id="galerie-entete">
+          <h2 id="titre-projets" class="titre">Projets <em id="compte"></em></h2>
+          <div class="filtres" id="filtres" role="group" aria-label="Filtrer les projets par style"></div>
+        </div>
+        <div class="galerie-fenetre" id="galerie-fenetre"><div class="galerie-piste" id="piste"></div></div>
+        <div class="galerie-avancement" aria-hidden="true"><span id="galerie-barre"></span></div>
+      </div>
+    </section>
+
+    <div class="bande" aria-hidden="true"><div class="bande-texte" id="bande"></div></div>
+
+    <section class="comparaison" id="avant-apres" aria-labelledby="titre-comparaison">
+      <div class="section-entete">
+        <h2 id="titre-comparaison" class="titre">Du rush <em>au montage</em></h2>
+        <p class="section-note" id="comparaison-legende"></p>
+      </div>
+      <div class="comparateur" id="comparateur" data-curseur="Glisser">
+        <div class="comparateur-couche" id="couche-montage"><span class="mono comparateur-label a-droite">Montage</span></div>
+        <div class="comparateur-couche comparateur-haut" id="couche-rush"><span class="mono comparateur-label">Rush</span></div>
+        <div class="comparateur-ligne" aria-hidden="true"><span></span></div>
+        <input id="comparateur-curseur" type="range" min="0" max="100" value="50" aria-label="Position entre le rush et le montage">
+      </div>
+    </section>
+
+    <section class="clair feuille services" id="services" aria-labelledby="titre-services">
+      <div class="section-entete">
+        <h2 id="titre-services" class="titre">Ce que <em>je monte</em></h2>
+      </div>
+      <div class="mosaique" id="mosaique"></div>
+    </section>
+
+    <section class="clair methode" id="methode" aria-labelledby="titre-methode">
+      <div class="section-entete">
+        <h2 id="titre-methode" class="titre">Comment <em>on travaille</em></h2>
+      </div>
+      <ol class="etapes" id="etapes"></ol>
+    </section>
+
+    <section class="resultats" id="resultats" aria-labelledby="titre-resultats">
+      <div class="section-entete">
+        <h2 id="titre-resultats" class="titre">Les <em>résultats</em></h2>
+      </div>
+      <div class="chiffres" id="chiffres"></div>
+      <div id="liste-avis"></div>
+      <div class="defilant" id="clients"></div>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="titre-contact">
+      <h2 id="titre-contact" class="contact-titre">Parlons de votre <em>prochaine vidéo.</em></h2>
+      <div class="contact-liens" id="contact-liens"></div>
+      <footer class="pied mono">
+        <span id="pied-nom"></span>
+        <a href="#reel">Retour en haut</a>
+      </footer>
+    </section>
+  </main>
+
+  <div class="curseur" id="curseur" aria-hidden="true"><span id="curseur-texte"></span></div>
+  <div class="avancement" aria-hidden="true"><span id="avancement"></span></div>
+  <span class="timecode mono" id="timecode" aria-hidden="true">00:00:00:00</span>
+
+  <dialog class="lecteur" id="lecteur" aria-labelledby="lecteur-titre">
+    <div class="lecteur-haut">
+      <div>
+        <p class="lecteur-titre" id="lecteur-titre"></p>
+        <p class="mono lecteur-info" id="lecteur-info"></p>
+      </div>
+      <button class="lecteur-fermer" id="lecteur-fermer" type="button">Fermer</button>
+    </div>
+    <div class="lecteur-zone"><div class="lecteur-cadre" id="lecteur-cadre"></div></div>
+  </dialog>
+
+  <noscript><p class="sans-js">Active JavaScript pour voir ce portfolio.</p></noscript>
+
+  <script src="contenu.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
