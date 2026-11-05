@@ -65,12 +65,20 @@
     voir.observe(noeud);
   }
 
-  /* Vidéos : elles tournent seulement quand elles sont visibles */
+  /* Vidéos : elles tournent seulement quand elles sont visibles.
+     L'iPhone peut refuser la lecture automatique (mode économie d'énergie, navigateur d'Instagram) :
+     l'image fixe reste alors affichée et la vidéo démarre au premier toucher. */
+  let lectureBloquee = false;
+
+  function lancer(video) {
+    const promesse = video.play();
+    if (promesse) promesse.catch((erreur) => { if (erreur.name === "NotAllowedError") lectureBloquee = true; });
+  }
+
   const lecture = new IntersectionObserver((entrees) => {
     entrees.forEach((entree) => {
       if (entree.isIntersecting) {
-        const promesse = entree.target.play();
-        if (promesse) promesse.catch(() => {});
+        lancer(entree.target);
       } else {
         entree.target.pause();
       }
@@ -78,11 +86,21 @@
   }, { threshold: 0.1 });
 
   function creerVideo(source, surveiller) {
-    const video = el("video", { loop: "", playsinline: "", muted: "", preload: mouvementReduit ? "metadata" : "none", "aria-hidden": "true" });
+    const video = el("video", { loop: "", playsinline: "", "webkit-playsinline": "", muted: "", preload: "none", "aria-hidden": "true" });
     video.muted = true;
     video.src = source;
+    video.addEventListener("playing", () => video.classList.add("en-lecture"));
     if (surveiller !== false && !mouvementReduit) lecture.observe(video);
     return video;
+  }
+
+  // apercus/nom.mp4 a son image fixe dans images/nom.jpg
+  const imageDe = (apercu) => apercu.replace(/^apercus\//, "images/").replace(/\.mp4$/, ".jpg");
+
+  function creerApercu(source, surveiller) {
+    const image = el("img", { src: imageDe(source), alt: "", decoding: "async", loading: surveiller === false ? "eager" : "lazy" });
+    image.addEventListener("error", () => image.remove());
+    return el("span", { classe: "apercu" }, image, creerVideo(source, surveiller));
   }
 
   /* Lecteur plein écran */
@@ -103,7 +121,9 @@
         referrerpolicy: "strict-origin-when-cross-origin",
       }));
     } else {
-      cadre.replaceChildren(el("video", { src: video.video || video.apercu, controls: "", autoplay: "", playsinline: "" }));
+      const plein = el("video", { src: video.video || video.apercu, controls: "", autoplay: "", playsinline: "", "webkit-playsinline": "" });
+      if (video.apercu) plein.poster = imageDe(video.apercu);
+      cadre.replaceChildren(plein);
     }
     lecteur.showModal();
   }
@@ -127,15 +147,15 @@
   const sourcesMur = C.projets.filter((p) => p.apercu).map((p) => p.apercu);
   const nombreMur = window.matchMedia("(max-width: 760px)").matches ? 3 : 5;
   const cartesMur = sourcesMur.slice(0, nombreMur).map((source, i) => {
-    const video = creerVideo(source, false);
-    video.preload = "auto";
-    const carte = el("div", { classe: "mur-carte" }, video);
+    const apercu = creerApercu(source, false);
+    apercu.querySelector("video").preload = "auto";
+    const carte = el("div", { classe: "mur-carte" }, apercu);
     carte.style.setProperty("--i", i);
     carte.dataset.decalage = i % 2 ? 7 : -5;
     carte.dataset.vitesse = 10 + ((i * 7) % 3) * 9;
     return carte;
   });
-  const videosHeros = cartesMur.map((carte) => carte.firstChild);
+  const videosHeros = cartesMur.map((carte) => carte.querySelector("video"));
   $("heros-video").classList.add("mur");
   $("heros-video").append(...cartesMur);
 
@@ -177,7 +197,7 @@
     const id = idYoutube(projet.youtube);
     const lisible = id || projet.video || projet.apercu;
     const image = el("span", { classe: "carte-image" });
-    if (projet.apercu) image.append(creerVideo(projet.apercu));
+    if (projet.apercu) image.append(creerApercu(projet.apercu));
     else if (id) image.append(el("img", { src: "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg", alt: "", loading: "lazy" }));
 
     const carte = el(lisible ? "button" : "div", { classe: "carte", "data-format": projet.format }, image,
@@ -289,7 +309,7 @@
   /* Services */
   $("mosaique").append(...C.services.map((service, i) => {
     const tuile = el("button", { classe: "tuile", type: "button", "data-curseur": "Voir" },
-      service.apercu ? creerVideo(service.apercu) : null,
+      service.apercu ? creerApercu(service.apercu) : null,
       el("span", { classe: "tuile-fleche", "aria-hidden": "true" }, "→"),
       el("span", { classe: "tuile-nom" }, service.nom),
       el("span", { classe: "tuile-texte" }, service.tarif ? service.description + " " + service.tarif : service.description));
@@ -419,7 +439,22 @@
   let dernierY = -1;
   let aActualiser = true;
   let actif = -2;
-  let herosEnPause = false;
+  let herosEnPause = true;
+
+  function relancerVideos() {
+    if (!lectureBloquee) return;
+    lectureBloquee = false;
+    document.querySelectorAll(".apercu video").forEach((video) => {
+      if (!video.paused || (herosEnPause && video.closest(".mur-carte"))) return;
+      const zone = video.getBoundingClientRect();
+      if (zone.bottom > 0 && zone.top < window.innerHeight) lancer(video);
+    });
+  }
+
+  if (!mouvementReduit) {
+    document.addEventListener("touchend", relancerVideos, { passive: true });
+    document.addEventListener("click", relancerVideos);
+  }
 
   function majIndice() {
     const lien = liensPilule[actif];
@@ -459,12 +494,9 @@
         videosHeros.forEach((video) => video.pause());
         herosEnPause = true;
       }
-      if (pHeros < 1 && (herosEnPause || videosHeros.some((video) => video.paused))) {
+      if (pHeros < 1 && herosEnPause) {
         herosEnPause = false;
-        videosHeros.forEach((video) => {
-          const promesse = video.play();
-          if (promesse) promesse.catch(() => {});
-        });
+        videosHeros.forEach(lancer);
       }
     }
 
