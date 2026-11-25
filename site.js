@@ -125,12 +125,33 @@
       if (video.apercu) plein.poster = imageDe(video.apercu);
       cadre.replaceChildren(plein);
     }
-    lecteur.showModal();
+    if (!lecteur.open) lecteur.showModal();
   }
+
+  // Dans le lecteur, on passe d'un projet à l'autre sans le fermer.
+  let listeLecteur = [];
+  let rangLecteur = 0;
+
+  function ouvrirProjet(liste, rang) {
+    listeLecteur = liste;
+    rangLecteur = (rang + liste.length) % liste.length;
+    const projet = liste[rangLecteur];
+    lecteur.classList.add("avec-suite");
+    $("lecteur-rang").textContent = (rangLecteur + 1) + " / " + liste.length;
+    ouvrirLecteur(projet, projet.titre, [projet.client, projet.role].filter(Boolean).join(" · "));
+  }
+
+  $("lecteur-avant").addEventListener("click", () => ouvrirProjet(listeLecteur, rangLecteur - 1));
+  $("lecteur-apres").addEventListener("click", () => ouvrirProjet(listeLecteur, rangLecteur + 1));
+  lecteur.addEventListener("keydown", (e) => {
+    if (!lecteur.classList.contains("avec-suite") || e.target.tagName === "VIDEO") return;
+    if (e.key === "ArrowLeft") ouvrirProjet(listeLecteur, rangLecteur - 1);
+    if (e.key === "ArrowRight") ouvrirProjet(listeLecteur, rangLecteur + 1);
+  });
 
   $("lecteur-fermer").addEventListener("click", () => lecteur.close());
   lecteur.addEventListener("click", (e) => { if (e.target === lecteur) lecteur.close(); });
-  lecteur.addEventListener("close", () => cadre.replaceChildren());
+  lecteur.addEventListener("close", () => { cadre.replaceChildren(); lecteur.classList.remove("avec-suite"); });
 
   /* Haut de page */
   document.title = C.nom + " · " + C.metier;
@@ -193,7 +214,7 @@
   const galerie = $("projets");
   let cartes = [];
 
-  function creerCarte(projet, i) {
+  function creerCarte(projet, i, liste) {
     const id = idYoutube(projet.youtube);
     const lisible = id || projet.video || projet.apercu;
     const image = el("span", { classe: "carte-image" });
@@ -210,7 +231,7 @@
       carte.type = "button";
       carte.dataset.curseur = "Lire";
       carte.setAttribute("aria-label", "Lire " + projet.titre + ", " + projet.client);
-      carte.addEventListener("click", () => ouvrirLecteur(projet, projet.titre, [projet.client, projet.role].filter(Boolean).join(" · ")));
+      carte.addEventListener("click", () => ouvrirProjet(liste, i));
     }
     return carte;
   }
@@ -235,10 +256,26 @@
     galerie.style.height = parcours + window.innerHeight + "px";
   }
 
-  function afficherProjets(filtre) {
+  const LOT = 12;
+
+  function afficherProjets(filtre, tout) {
     piste.querySelectorAll("video").forEach((video) => lecture.unobserve(video));
     const projets = C.projets.filter((p) => filtre === "tous" || p.style === filtre);
-    cartes = projets.map(creerCarte);
+    const visibles = tout || projets.length <= LOT + 2 ? projets : projets.slice(0, LOT);
+    cartes = visibles.map((projet, i) => creerCarte(projet, i, projets));
+    if (visibles.length < projets.length) {
+      const plus = el("button", { classe: "carte carte-plus", type: "button", "data-format": "vertical", "data-curseur": "Voir" },
+        el("span", { classe: "carte-image" },
+          el("span", { classe: "carte-plus-nombre" }, "+" + (projets.length - visibles.length)),
+          el("span", { classe: "carte-plus-texte" }, "Voir tous les projets")),
+        el("span", { classe: "carte-texte" }, el("span", { classe: "carte-titre" }, "\u00a0"), el("span", { classe: "carte-client" }, "\u00a0")));
+      plus.style.setProperty("--i", 8);
+      plus.addEventListener("click", () => {
+        afficherProjets(filtre, true);
+        cartes[LOT].focus({ preventScroll: true });
+      });
+      cartes.push(plus);
+    }
     piste.replaceChildren(...cartes);
     $("compte").textContent = "(" + projets.length + ")";
     mesurerGalerie();
@@ -255,7 +292,8 @@
   }
 
   $("filtres").append(...[{ id: "tous", nom: "Tous" }].concat(C.styles).map((f) => {
-    const bouton = el("button", { classe: "filtre", type: "button", "data-filtre": f.id, "aria-pressed": "false" }, f.nom);
+    const bouton = el("button", { classe: "filtre", type: "button", "data-filtre": f.id, "aria-pressed": String(f.id === "tous") }, f.nom,
+      el("span", { classe: "filtre-nombre" }, String(C.projets.filter((p) => f.id === "tous" || p.style === f.id).length)));
     bouton.addEventListener("click", () => choisirFiltre(f.id));
     return bouton;
   }));
@@ -344,8 +382,17 @@
 
   /* Contact */
   const liens = [];
+  const lienWhatsapp = "https://wa.me/" + C.contact.whatsapp + "?text=" + encodeURIComponent("Bonjour, j'ai vu votre portfolio et je voudrais parler d'une vidéo.");
   if (C.contact.email) liens.push(el("a", { classe: "contact-lien", href: "mailto:" + C.contact.email, "data-aimant": "" }, C.contact.email));
-  if (C.contact.whatsapp) liens.push(el("a", { classe: "contact-lien", href: "https://wa.me/" + C.contact.whatsapp, rel: "noopener", "data-aimant": "" }, "WhatsApp"));
+  if (C.contact.whatsapp) liens.push(el("a", { classe: "contact-lien", href: lienWhatsapp, rel: "noopener", "data-aimant": "" }, "WhatsApp"));
+  if (C.contact.whatsapp) {
+    $("wa-flottant").href = lienWhatsapp;
+    new IntersectionObserver((entrees) => {
+      document.body.classList.toggle("contact-visible", entrees[0].isIntersecting);
+    }).observe($("contact-liens"));
+  } else {
+    $("wa-flottant").remove();
+  }
   if (C.contact.instagram) liens.push(el("a", { classe: "contact-lien", href: "https://www.instagram.com/" + C.contact.instagram + "/", rel: "noopener", "data-aimant": "" }, "Instagram"));
   $("contact-liens").append(...liens);
 
@@ -503,6 +550,8 @@
     // Le menu se cache en descendant et revient en remontant.
     if (y > vh * 0.5 && y > dernierY + 2) teteSite.classList.add("cachee");
     else if (y < dernierY - 2 || y <= vh * 0.5) teteSite.classList.remove("cachee");
+
+    document.body.classList.toggle("hors-heros", y > vh * 0.6);
 
     let nouveau = -1;
     sectionsPilule.forEach((section, i) => {

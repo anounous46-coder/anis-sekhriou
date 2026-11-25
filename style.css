@@ -6,7 +6,7 @@
   --trait-clair: rgba(11, 11, 10, .16);
   --doux-sombre: #9a978e;
   --doux-clair: #5f5c55;
-  --accent: #ff5b1f;
+  --accent: #3f7dff;
   --sans: "Geist", "Segoe UI", system-ui, sans-serif;
   --mono-f: "Geist Mono", ui-monospace, Consolas, monospace;
   --serif: "Instrument Serif", Georgia, serif;
@@ -435,6 +435,8 @@ main > .bande { position: relative; z-index: 1; }
 .filtre:hover { color: var(--os); border-color: var(--os); }
 .filtre[aria-pressed="true"] { background: var(--os); border-color: var(--os); color: var(--noir); }
 
+.filtre-nombre { margin-left: .45em; opacity: .6; font: 400 .75rem var(--mono-f); }
+
 .galerie-piste {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -511,6 +513,19 @@ main > .bande { position: relative; z-index: 1; }
 
 .carte-titre { font-size: 1.0625rem; letter-spacing: -.02em; }
 .carte-client { color: var(--doux-sombre); font-size: .875rem; }
+
+/* Dernière carte : ouvre le reste des projets */
+.carte-plus .carte-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1rem, 1.6vw, 1.75rem);
+  background: var(--accent);
+  color: var(--noir);
+}
+
+.carte-plus-nombre { font-size: clamp(3rem, 6vw, 6.5rem); line-height: .9; letter-spacing: -.06em; }
+.carte-plus-texte { font-size: clamp(1.0625rem, 1.7vw, 1.625rem); line-height: 1.1; letter-spacing: -.03em; }
 
 .galerie-avancement { display: none; }
 
@@ -1017,6 +1032,26 @@ main > .bande { position: relative; z-index: 1; }
   transition: background .3s, color .3s;
 }
 
+.lecteur-boutons { display: flex; flex: none; align-items: center; gap: .75rem; }
+.lecteur-suite { display: none; align-items: center; gap: .6rem; }
+.avec-suite .lecteur-suite { display: flex; }
+
+.lecteur-fleche {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--trait-sombre);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: background .3s, color .3s;
+}
+
+.lecteur-fleche:hover { background: var(--accent); color: var(--noir); }
+
+/* Bouton WhatsApp, sur téléphone seulement */
+.wa-flottant { display: none; }
+
 .lecteur-fermer:hover { background: var(--os); color: var(--noir); }
 
 .lecteur-zone {
@@ -1060,6 +1095,29 @@ main > .bande { position: relative; z-index: 1; }
   .tuile { min-height: 20rem; }
   .carte-titre,
   .carte-client { white-space: normal; }
+  .lecteur-haut { flex-wrap: wrap; }
+  .lecteur-boutons { width: 100%; justify-content: space-between; }
+  .lecteur-cadre,
+  .lecteur[data-format="vertical"] .lecteur-cadre { max-height: calc(100dvh - 11rem); width: auto; height: calc(100dvh - 11rem); max-width: 100%; }
+
+  .wa-flottant {
+    position: fixed;
+    right: var(--marge);
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 25;
+    display: block;
+    padding: .8rem 1.3rem;
+    border-radius: 99px;
+    background: var(--accent);
+    color: var(--noir);
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(1rem);
+    transition: opacity .3s, transform .5s var(--sortie), visibility .3s;
+  }
+
+  .hors-heros:not(.contact-visible) .wa-flottant { opacity: 1; visibility: visible; transform: none; }
 }
 
 @media (min-width: 761px) and (max-width: 1050px) {
